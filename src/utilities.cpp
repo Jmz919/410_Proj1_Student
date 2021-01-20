@@ -16,7 +16,7 @@ using namespace std;
 
 //********************** private to this compilation unit **********************
 
-std::vector<process_stats> process;
+vector<process_stats> process;
 
 //if myString does not contain a string rep of number returns o
 //if int not large enough has undefined behaviour, very fragile
@@ -29,23 +29,35 @@ int loadData(const char* filename, bool ignoreFirstRow) {
 	ifstream inputFile(file);
 
 	if (inputFile.is_open()) {
-//		string myText;
-//		while(getline(inputFile, myText)) {
-//			process_stats stats;
-//			std::vector<int> row;
-//			stringstream line(myText);
-//			string ele;
-//			getline(line, ele, ',');
-//			row.push_back(stringToInt(ele.c_str()));
-//
-//			if (row.size() == 4) {
-//				stats = {row[0], row[1], row[2], row[3]};
-//			}
-//			else {
-//				return FAIL;
-//			}
-//			process.push_back(stats);
-//		}
+		string myText;
+		while(getline(inputFile, myText)) {
+			process_stats stats;
+			vector<int> row;
+			stringstream line(myText);
+
+
+			bool heading = false;
+			while(line.good()) {
+				string ele;
+				getline(line, ele, ',');
+				if (isdigit(ele[0])) {
+					row.push_back(stringToInt(ele.c_str()));
+				}
+				else {
+					heading = true;
+				}
+			}
+
+			if (row.size() == 4) {
+				stats = {row[0], row[1], row[2], row[3]};
+				process.push_back(stats);
+			}
+			else {
+				if (!heading) {
+					return FAIL;
+				}
+			}
+		}
 
 		inputFile.close();
 		return SUCCESS;
@@ -69,7 +81,7 @@ process_stats getNext() {
 
 //returns number of process_stats structs in the vector holding them
 int getNumbRows(){
-	return 0;
+	return process.size();
 }
 
 
