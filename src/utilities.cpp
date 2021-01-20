@@ -39,27 +39,18 @@ int loadData(const char* filename, bool ignoreFirstRow) {
 		myText.erase(remove(myText.begin(), myText.end(), ' '), myText.end());
 		stringstream line(myText);
 
-		// bool heading = false;
 		while(line.good()) {
 			string ele;
 			getline(line, ele, CHAR_TO_SEARCH_FOR);
 			if (isdigit(ele[0])) {
 				row.push_back(stringToInt(ele.c_str()));
 			}
-			// else {
-			// 	heading = true;
-			// }
 		}
 
 		if (row.size() == 4) {
 			stats = {row[0], row[1], row[2], row[3]};
 			process.push_back(stats);
 		}
-		// else {
-		// 	if (!heading) {
-		// 		return FAIL;
-		// 	}
-		// }
 	}
 
 	inputFile.close();
@@ -74,6 +65,10 @@ void sortData(SORT_ORDER mySortOrder) {
 
 process_stats getNext() {
 	process_stats myFirst;
+	if (process.size() > 0) {
+		myFirst = process[0];
+		process.erase(process.begin());
+	}
 
 	return myFirst;
 }
