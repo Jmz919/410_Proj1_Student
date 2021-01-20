@@ -16,7 +16,7 @@ using namespace std;
 
 //********************** private to this compilation unit **********************
 
-vector<process_stats> process;
+vector<process_stats> data;
 
 //if myString does not contain a string rep of number returns o
 //if int not large enough has undefined behaviour, very fragile
@@ -25,7 +25,7 @@ int stringToInt(const char *myString) {
 }
 
 int loadData(const char* filename, bool ignoreFirstRow) {
-	process.clear();
+	data.clear();
 	string file(filename);
 	ifstream inputFile(file);
 
@@ -33,7 +33,8 @@ int loadData(const char* filename, bool ignoreFirstRow) {
 		return COULD_NOT_OPEN_FILE;
 	}
 	string myText;
-	while(getline(inputFile, myText)) {
+	while(!inputFile.eof()) {
+		getline(inputFile, myText);
 		process_stats stats;
 		vector<int> row;
 		myText.erase(remove(myText.begin(), myText.end(), ' '), myText.end());
@@ -49,7 +50,7 @@ int loadData(const char* filename, bool ignoreFirstRow) {
 
 		if (row.size() == 4) {
 			stats = {row[0], row[1], row[2], row[3]};
-			process.push_back(stats);
+			data.push_back(stats);
 		}
 	}
 
@@ -60,14 +61,80 @@ int loadData(const char* filename, bool ignoreFirstRow) {
 
 //will sort according to user preference
 void sortData(SORT_ORDER mySortOrder) {
+	int data_size = data.size();
+	switch(mySortOrder) {
+		case (CPU_TIME):
+			for (int i = 0; i < data_size - 1; i++) {
+				for (int j = 0; j < data_size - i - 1; j++) {
+					if (data[j].cpu_time > data[j+1].cpu_time) {
+						struct process_stats temp;
+						temp.process_number = data[j].process_number;
+						temp.start_time = data[j].start_time;
+						temp.cpu_time = data[j].cpu_time;
+						temp.io_time = data[j].io_time;
 
+						data[j] = data[j+1];
+						data[j+1] = temp;
+					}
+				}
+			}
+			break;
+		case (PROCESS_NUMBER):
+			for (int i = 0; i < data_size - 1; i++) {
+				for (int j = 0; j < data_size - i - 1; j++) {
+					if (data[j].process_number > data[j+1].process_number) {
+						struct process_stats temp;
+						temp.process_number = data[j].process_number;
+						temp.start_time = data[j].start_time;
+						temp.cpu_time = data[j].cpu_time;
+						temp.io_time = data[j].io_time;
+
+						data[j] = data[j+1];
+						data[j+1] = temp;
+					}
+				}
+			}
+			break;
+		case (START_TIME):
+			for (int i = 0; i < data_size - 1; i++) {
+				for (int j = 0; j < data_size - i - 1; j++) {
+					if (data[j].start_time > data[j+1].start_time) {
+						struct process_stats temp;
+						temp.process_number = data[j].process_number;
+						temp.start_time = data[j].start_time;
+						temp.cpu_time = data[j].cpu_time;
+						temp.io_time = data[j].io_time;
+
+						data[j] = data[j+1];
+						data[j+1] = temp;
+					}
+				}
+			}
+			break;
+		case (IO_TIME):
+			for (int i = 0; i < data_size - 1; i++) {
+				for (int j = 0; j < data_size - i - 1; j++) {
+					if (data[j].io_time > data[j+1].io_time) {
+						struct process_stats temp;
+						temp.process_number = data[j].process_number;
+						temp.start_time = data[j].start_time;
+						temp.cpu_time = data[j].cpu_time;
+						temp.io_time = data[j].io_time;
+
+						data[j] = data[j+1];
+						data[j+1] = temp;
+					}
+				}
+			}
+			break;
+	}
 }
 
 process_stats getNext() {
 	process_stats myFirst;
-	if (process.size() > 0) {
-		myFirst = process[0];
-		process.erase(process.begin());
+	if (data.size() > 0) {
+		myFirst = data[0];
+		data.erase(data.begin());
 	}
 
 	return myFirst;
@@ -75,7 +142,7 @@ process_stats getNext() {
 
 //returns number of process_stats structs in the vector holding them
 int getNumbRows(){
-	return process.size();
+	return data.size();
 }
 
 
