@@ -18,6 +18,23 @@ using namespace std;
 
 vector<process_stats> data;
 
+// Private sort functions for process_stats struct
+bool sortCPU(process_stats i, process_stats j) {
+	return i.cpu_time < j.cpu_time;
+}
+
+bool sortProcess(process_stats i, process_stats j) {
+	return i.process_number < j.process_number;
+}
+
+bool sortStart(process_stats i, process_stats j) {
+	return i.start_time < j.start_time;
+}
+
+bool sortIO(process_stats i, process_stats j) {
+	return i.io_time < j.io_time;
+}
+
 //if myString does not contain a string rep of number returns o
 //if int not large enough has undefined behaviour, very fragile
 int stringToInt(const char *myString) {
@@ -25,32 +42,50 @@ int stringToInt(const char *myString) {
 }
 
 int loadData(const char* filename, bool ignoreFirstRow) {
+	// Make sure to clear the vector upon a new file being uploaded
 	data.clear();
 	string file(filename);
 	ifstream inputFile(file);
 
+	// Ensure the file is open before proceeding
 	if (!inputFile.is_open()) {
 		return COULD_NOT_OPEN_FILE;
 	}
+	
 	string myText;
+	bool first = ignoreFirstRow;
 	while(!inputFile.eof()) {
 		getline(inputFile, myText);
-		process_stats stats;
-		vector<int> row;
-		myText.erase(remove(myText.begin(), myText.end(), ' '), myText.end());
-		stringstream line(myText);
 
-		while(line.good()) {
-			string ele;
-			getline(line, ele, CHAR_TO_SEARCH_FOR);
-			if (isdigit(ele[0])) {
-				row.push_back(stringToInt(ele.c_str()));
+		// If ignoreFirstRow is true ignore the first row and set first to false
+		// If ignoreFirstRow is false proceed normally
+		if (!first) {
+			process_stats stats;
+			vector<int> row;
+			
+			// Remove whitespace from the string to help with parsing
+			myText.erase(remove(myText.begin(), myText.end(), ' '), myText.end());
+			stringstream line(myText);
+
+			// Parse line from file by searching for CHAR_TO_SEARCH_FOR
+			while(line.good()) {
+				string ele;
+				getline(line, ele, CHAR_TO_SEARCH_FOR);
+				
+				// Ensure each part of the string is a digit before converting to int
+				if (isdigit(ele[0])) {
+					row.push_back(stringToInt(ele.c_str()));
+				}
+			}
+
+			// Make sure the row has all for process stats before adding to global vector
+			if (row.size() == 4) {
+				stats = {row[0], row[1], row[2], row[3]};
+				data.push_back(stats);
 			}
 		}
-
-		if (row.size() == 4) {
-			stats = {row[0], row[1], row[2], row[3]};
-			data.push_back(stats);
+		else {
+			first = !first;
 		}
 	}
 
@@ -61,71 +96,18 @@ int loadData(const char* filename, bool ignoreFirstRow) {
 
 //will sort according to user preference
 void sortData(SORT_ORDER mySortOrder) {
-	int data_size = data.size();
 	switch(mySortOrder) {
 		case (CPU_TIME):
-			for (int i = 0; i < data_size - 1; i++) {
-				for (int j = 0; j < data_size - i - 1; j++) {
-					if (data[j].cpu_time > data[j+1].cpu_time) {
-						struct process_stats temp;
-						temp.process_number = data[j].process_number;
-						temp.start_time = data[j].start_time;
-						temp.cpu_time = data[j].cpu_time;
-						temp.io_time = data[j].io_time;
-
-						data[j] = data[j+1];
-						data[j+1] = temp;
-					}
-				}
-			}
+			sort(data.begin(), data.end(), sortCPU);
 			break;
 		case (PROCESS_NUMBER):
-			for (int i = 0; i < data_size - 1; i++) {
-				for (int j = 0; j < data_size - i - 1; j++) {
-					if (data[j].process_number > data[j+1].process_number) {
-						struct process_stats temp;
-						temp.process_number = data[j].process_number;
-						temp.start_time = data[j].start_time;
-						temp.cpu_time = data[j].cpu_time;
-						temp.io_time = data[j].io_time;
-
-						data[j] = data[j+1];
-						data[j+1] = temp;
-					}
-				}
-			}
+			sort(data.begin(), data.end(), sortProcess);
 			break;
 		case (START_TIME):
-			for (int i = 0; i < data_size - 1; i++) {
-				for (int j = 0; j < data_size - i - 1; j++) {
-					if (data[j].start_time > data[j+1].start_time) {
-						struct process_stats temp;
-						temp.process_number = data[j].process_number;
-						temp.start_time = data[j].start_time;
-						temp.cpu_time = data[j].cpu_time;
-						temp.io_time = data[j].io_time;
-
-						data[j] = data[j+1];
-						data[j+1] = temp;
-					}
-				}
-			}
+			sort(data.begin(), data.end(), sortStart);
 			break;
 		case (IO_TIME):
-			for (int i = 0; i < data_size - 1; i++) {
-				for (int j = 0; j < data_size - i - 1; j++) {
-					if (data[j].io_time > data[j+1].io_time) {
-						struct process_stats temp;
-						temp.process_number = data[j].process_number;
-						temp.start_time = data[j].start_time;
-						temp.cpu_time = data[j].cpu_time;
-						temp.io_time = data[j].io_time;
-
-						data[j] = data[j+1];
-						data[j+1] = temp;
-					}
-				}
-			}
+			sort(data.begin(), data.end(), sortIO);
 			break;
 	}
 }
