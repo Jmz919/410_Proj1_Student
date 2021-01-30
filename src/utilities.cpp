@@ -1,6 +1,10 @@
-/***
+/*
  * KP Utils
+ *
+ *  Created on: Jan 30, 2021
+ *      Author: Joshua Zutell
  */
+
 #include <numeric>
 #include <math.h>
 #include <algorithm>
