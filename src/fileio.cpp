@@ -7,8 +7,8 @@
 
 //============================================================================
 // Name        : Proj1_410.cpp
-// Author      : Josh Zutell
-// Version     : 1-20-2021
+// Author      :
+// Version     :
 // Copyright   : Your copyright notice
 //============================================================================
 
@@ -87,4 +87,3 @@ int main() {
 	cout<<"TOTAL POINTS FOR STUDENT = "<<std::to_string(total_points)<<endl;
 	return iRet;
 }
-

@@ -52,16 +52,15 @@ int loadData(const char* filename, bool ignoreFirstRow) {
 		return COULD_NOT_OPEN_FILE;
 	}
 	
-	string myText;
-	bool first = ignoreFirstRow;
 	while(!inputFile.eof()) {
+		string myText;
 		getline(inputFile, myText);
 
-		// If ignoreFirstRow is true ignore the first row and set first to false
+		// If ignoreFirstRow is true ignore the first row and set ignoreFirstRow to false
 		// If ignoreFirstRow is false proceed normally
-		if (!first) {
+		if (!ignoreFirstRow) {
 			process_stats stats;
-			vector<int> row;
+			vector<int> fileRow;
 			
 			// Remove whitespace from the string to help with parsing
 			myText.erase(remove(myText.begin(), myText.end(), ' '), myText.end());
@@ -74,18 +73,18 @@ int loadData(const char* filename, bool ignoreFirstRow) {
 				
 				// Ensure each part of the string is a digit before converting to int
 				if (isdigit(ele[0])) {
-					row.push_back(stringToInt(ele.c_str()));
+					fileRow.push_back(stringToInt(ele.c_str()));
 				}
 			}
 
 			// Make sure the row has all for process stats before adding to global vector
-			if (row.size() == 4) {
-				stats = {row[0], row[1], row[2], row[3]};
+			if (fileRow.size() == 4) {
+				stats = {fileRow[0], fileRow[1], fileRow[2], fileRow[3]};
 				data.push_back(stats);
 			}
 		}
 		else {
-			first = !first;
+			ignoreFirstRow = !ignoreFirstRow;
 		}
 	}
 
